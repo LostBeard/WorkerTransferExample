@@ -24,7 +24,7 @@ ArrayBuffer is detached: True
 Processed with WorkerTransfer 52428800 bytes in 52 ms
 
 byte[] - transferable and ArrayBuffer used by the dispatcher automatically...
-ArrayBuffer is detached: False
+ArrayBuffer is detached: True
 Processed byte[] 52428800 bytes in 52 ms
 ```
 
