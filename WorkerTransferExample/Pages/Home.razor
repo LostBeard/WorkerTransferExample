@@ -1,0 +1,84 @@
+﻿@page "/"
+@using SpawnDev.BlazorJS
+@using SpawnDev.BlazorJS.JSObjects
+@using SpawnDev.BlazorJS.WebWorkers
+@using System.Security.Cryptography
+@using System.Diagnostics
+
+<PageTitle>WorkerTransfer Example</PageTitle>
+
+<h1>WorkerTransfer Example</h1>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+<pre role="status">@status</pre>
+
+@code {
+    [Inject]
+    WebWorkerService WebWorkerService { get; set; } = default!;
+
+    string status = "";
+
+    void Log(string msg)
+    {
+        status += msg + "\r\n";
+        StateHasChanged();
+    }
+
+    private async Task IncrementCount()
+    {
+        // generate 250KB of random data
+        var bytes = RandomNumberGenerator.GetBytes(250 * 1024);
+
+        // get as a Uint8Array
+        using var uint8Array = new Uint8Array(bytes);
+
+        //  get the underlying ArrayBuffer
+        using var arrayBufferOrig = uint8Array.Buffer;
+
+        {
+            // process the ArrayBuffer in a worker without using WorkerTransfer
+            // here for comparison purposes
+            var sw = Stopwatch.StartNew();
+            using var arrayBufferReturned1 = await WebWorkerService.TaskPool.Run(() => ProcessFrameNoTransfer(arrayBufferOrig));
+            Log($"Processed without WorkerTransfer {arrayBufferReturned1.ByteLength} bytes in {sw.ElapsedMilliseconds} ms");
+
+            // arrayBufferOrig is not detached and can still be used (indicates it was not transferred to the worker)
+            Log($"ArrayBuffer is detached: {arrayBufferOrig.Detached}");
+
+            // verify data integrity
+            var bytesReadBack = arrayBufferReturned1.ReadBytes();
+            Log($"Data integrity verified: {bytesReadBack.SequenceEqual(bytes)}");
+        }
+
+        {
+            // process the ArrayBuffer in a worker using WorkerTransfer
+            // the original will become detached
+            var sw = Stopwatch.StartNew();
+            using var arrayBufferReturned1 = await WebWorkerService.TaskPool.Run(() => ProcessFrame(arrayBufferOrig));
+            Log($"Processed with WorkerTransfer {arrayBufferReturned1.ByteLength} bytes in {sw.ElapsedMilliseconds} ms");
+
+            // arrayBufferOrig is now detached and cannot be used (indicates it was transferred to the worker)
+            Log($"ArrayBuffer is detached: {arrayBufferOrig.Detached}");
+
+            // verify data integrity
+            var bytesReadBack = arrayBufferReturned1.ReadBytes();
+            Log($"Data integrity verified: {bytesReadBack.SequenceEqual(bytes)}");
+        }
+    }
+
+    [return: WorkerTransfer]
+    static async Task<ArrayBuffer> ProcessFrame([WorkerTransfer] ArrayBuffer arrayBuffer)
+    {
+        // write to console to indicate data was received
+        Console.WriteLine($"Processing {arrayBuffer.ByteLength} bytes in worker");
+        return arrayBuffer;
+    }
+
+    static async Task<ArrayBuffer> ProcessFrameNoTransfer(ArrayBuffer arrayBuffer)
+    {
+        // write to console to indicate data was received
+        Console.WriteLine($"Processing {arrayBuffer.ByteLength} bytes in worker");
+        return arrayBuffer;
+    }
+}
