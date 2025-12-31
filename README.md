@@ -1,6 +1,6 @@
 # WorkerTransferExample
 
-This project demonatrates using SpawnDev.BlazorJS.WebWorkers to run .Net code in a web worker with and without the use of the WorkerTransfer attribute. 
+This project demonatrates using [SpawnDev.BlazorJS.WebWorkers](https://github.com/LostBeard/SpawnDev.BlazorJS.WebWorkers) to run .Net code in a web worker with and without the use of the WorkerTransfer attribute. 
 The WorkerTransfer attribute can be used to indicate when data should be transferred to a worker context instead of copied. 
 More information about [Transferable Objects](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects).
 
