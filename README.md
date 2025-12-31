@@ -12,6 +12,18 @@ More information about [Transferable Objects](https://developer.mozilla.org/en-U
 - This demo requires a modern browser that supports Web Workers and Transferable Objects.
 - You will notice a performance improvement when using WorkerTransfer for large data transfers.
 
+Example output from the demo:
+```
+Processed without WorkerTransfer 52428800 bytes in 27 ms
+ArrayBuffer is detached: False
+Data integrity verified: True
+Processed with WorkerTransfer 52428800 bytes in 10 ms
+ArrayBuffer is detached: True
+Data integrity verified: True
+Done
+```
+
+
 ### The main bits of this demo
 
 WorkerTransferExample.csproj
