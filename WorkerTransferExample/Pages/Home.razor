@@ -108,8 +108,8 @@
     static async Task<ArrayBuffer> ProcessFrame([WorkerTransfer] ArrayBuffer arrayBuffer)
     {
         // read in the data and write back out so it compares more equally with the other methods
-        var data = arrayBuffer.ReadBytes();
-        var retunrnedArrayBuffer = new Uint8Array(data).Buffer;
+        byte[] data = arrayBuffer.ReadBytes();
+        ArrayBuffer retunrnedArrayBuffer = new Uint8Array(data).Buffer;
         Console.WriteLine($"Processing ArrayBuffer with WorkerTransfer {data.Length} bytes in worker");
         return retunrnedArrayBuffer;
     }
@@ -117,8 +117,8 @@
     static async Task<ArrayBuffer> ProcessFrameNoTransfer(ArrayBuffer arrayBuffer)
     {
         // read in the data and write back out so it compares more equally with the other methods
-        var data = arrayBuffer.ReadBytes();
-        var retunrnedArrayBuffer = new Uint8Array(data).Buffer;
+        byte[] data = arrayBuffer.ReadBytes();
+        ArrayBuffer retunrnedArrayBuffer = new Uint8Array(data).Buffer;
         Console.WriteLine($"Processing ArrayBuffer without WorkerTransfer {data.Length} bytes in worker");
         return retunrnedArrayBuffer;
     }

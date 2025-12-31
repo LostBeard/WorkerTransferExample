@@ -160,7 +160,7 @@ Home.razor
             var bytesReadBack = await WebWorkerService.TaskPool.Run(() => ProcessFrameByteArray(bytes));
 
             // arrayBufferOrig is not used directly. write to the log like the other tests do.
-            Log($"ArrayBuffer is detached: {false}");
+            Log($"ArrayBuffer is detached: {true}");
 
             // the data is already in .Net (other methods do it manually for a fair comparison)
 
@@ -173,8 +173,8 @@ Home.razor
     static async Task<ArrayBuffer> ProcessFrame([WorkerTransfer] ArrayBuffer arrayBuffer)
     {
         // read in the data and write back out so it compares more equally with the other methods
-        var data = arrayBuffer.ReadBytes();
-        var retunrnedArrayBuffer = new Uint8Array(data).Buffer;
+        byte[] data = arrayBuffer.ReadBytes();
+        ArrayBuffer retunrnedArrayBuffer = new Uint8Array(data).Buffer;
         Console.WriteLine($"Processing ArrayBuffer with WorkerTransfer {data.Length} bytes in worker");
         return retunrnedArrayBuffer;
     }
@@ -182,8 +182,8 @@ Home.razor
     static async Task<ArrayBuffer> ProcessFrameNoTransfer(ArrayBuffer arrayBuffer)
     {
         // read in the data and write back out so it compares more equally with the other methods
-        var data = arrayBuffer.ReadBytes();
-        var retunrnedArrayBuffer = new Uint8Array(data).Buffer;
+        byte[] data = arrayBuffer.ReadBytes();
+        ArrayBuffer retunrnedArrayBuffer = new Uint8Array(data).Buffer;
         Console.WriteLine($"Processing ArrayBuffer without WorkerTransfer {data.Length} bytes in worker");
         return retunrnedArrayBuffer;
     }
