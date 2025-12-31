@@ -5,14 +5,21 @@ The WorkerTransfer attribute can be used to indicate when data should be transfe
 More information about [Transferable Objects](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Transferable_objects).
 
 [Live Demo](https://lostbeard.github.io/WorkerTransferExample/)
-- The demo generates 250KB of random data and sends it to a web worker for processing.
+- The demo generates 50MB of random data and sends it to a web worker for processing.
 - The demo first sends the data without using WorkerTransfer, which results in the data being copied to the worker.
 - Then the demo sends the data using WorkerTransfer, which results in the data being transferred to the worker (the original data becomes detached and cannot be used anymore).
 - The demo measures and displays the time taken for each operation and verifies data integrity.
 - This demo requires a modern browser that supports Web Workers and Transferable Objects.
-- You will notice a significant performance improvement when using WorkerTransfer for large data transfers.
+- You will notice a performance improvement when using WorkerTransfer for large data transfers.
 
 ### The main bits of this demo
+
+WorkerTransferExample.csproj
+```xml
+    <ItemGroup>
+        <PackageReference Include="SpawnDev.BlazorJS.WebWorkers" Version="2.26.0" />
+    </ItemGroup>
+```
 
 Program.cs
 ```cs
@@ -62,16 +69,16 @@ Home.razor
 
     void Log(string msg)
     {
-        status += msg + "\r\n";
+        status += msg + "\n";
         StateHasChanged();
     }
 
     private async Task Run()
     {
-        // generate 250KB of random data
-        var bytes = RandomNumberGenerator.GetBytes(250 * 1024);
+        // generate some random data for the example
+        byte[] bytes = RandomNumberGenerator.GetBytes(50 * 1024 * 1024);
 
-        // get as a Uint8Array
+        // get bytes as a Uint8Array
         using var uint8Array = new Uint8Array(bytes);
 
         //  get the underlying ArrayBuffer
@@ -82,6 +89,7 @@ Home.razor
             // here for comparison purposes
             var sw = Stopwatch.StartNew();
             using var arrayBufferReturned1 = await WebWorkerService.TaskPool.Run(() => ProcessFrameNoTransfer(arrayBufferOrig));
+            sw.Stop();
             Log($"Processed without WorkerTransfer {arrayBufferReturned1.ByteLength} bytes in {sw.ElapsedMilliseconds} ms");
 
             // arrayBufferOrig is not detached and can still be used (indicates it was not transferred to the worker)
@@ -97,6 +105,7 @@ Home.razor
             // the original will become detached
             var sw = Stopwatch.StartNew();
             using var arrayBufferReturned1 = await WebWorkerService.TaskPool.Run(() => ProcessFrame(arrayBufferOrig));
+            sw.Stop();
             Log($"Processed with WorkerTransfer {arrayBufferReturned1.ByteLength} bytes in {sw.ElapsedMilliseconds} ms");
 
             // arrayBufferOrig is now detached and cannot be used (indicates it was transferred to the worker)
@@ -106,6 +115,7 @@ Home.razor
             var bytesReadBack = arrayBufferReturned1.ReadBytes();
             Log($"Data integrity verified: {bytesReadBack.SequenceEqual(bytes)}");
         }
+        Log("Done\n");
     }
 
     [return: WorkerTransfer]
