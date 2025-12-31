@@ -6,9 +6,10 @@ More information about [Transferable Objects](https://developer.mozilla.org/en-U
 
 [Live Demo](https://lostbeard.github.io/WorkerTransferExample/)
 - The demo generates 50MB of random data and sends it to a web worker for processing.
-- The demo first sends the data without using WorkerTransfer, which results in the data being copied to the worker.
-- Then the demo sends the data using WorkerTransfer, which results in the data being transferred to the worker (the original data becomes detached and cannot be used anymore).
-- The demo measures and displays the time taken for each operation and verifies data integrity.
+- Test 1 The demo first sends the data as an ArrayBuffer without using WorkerTransfer, which results in the data being copied to the worker.
+- Test 2 Then the demo sends the data as an ArrayBuffer using WorkerTransfer, which results in the data being transferred to the worker (the original data becomes detached and cannot be used anymore).
+- Test 3 Then the demo sends the data as a byte[] using WorkerTransfer under the hood, which results in the data being transferred to the worker.
+- The demo measures and displays the time taken for each operation.
 - This demo requires a modern browser that supports Web Workers and Transferable Objects.
 - You will notice a performance improvement when using WorkerTransfer for large data transfers.
 
@@ -69,7 +70,7 @@ Home.razor
 
 <h1>WorkerTransfer Example</h1>
 
-<button class="btn btn-primary" @onclick="Run">Click me</button>
+<button class="btn btn-primary" @onclick="Run">Run</button>
 
 <pre role="status">@status</pre>
 
@@ -79,53 +80,88 @@ Home.razor
 
     string status = "";
 
+    // generate some random data for the example
+    byte[] bytes = RandomNumberGenerator.GetBytes(50 * 1024 * 1024);
+
     void Log(string msg)
     {
         status += msg + "\n";
         StateHasChanged();
     }
 
+    void LogClear()
+    {
+        status = "";
+        StateHasChanged();
+    }
+
     private async Task Run()
     {
-        // generate some random data for the example
-        byte[] bytes = RandomNumberGenerator.GetBytes(50 * 1024 * 1024);
-
-        // get bytes as a Uint8Array
-        using var uint8Array = new Uint8Array(bytes);
-
-        //  get the underlying ArrayBuffer
-        using var arrayBufferOrig = uint8Array.Buffer;
+        LogClear();
 
         {
+            Log($"ArrayBuffer without WorkerTransfer...");
+
             // process the ArrayBuffer in a worker without using WorkerTransfer
             // here for comparison purposes
             var sw = Stopwatch.StartNew();
+
+            // get bytes as a Uint8Array
+            using var uint8Array = new Uint8Array(bytes);
+
+            //  get the underlying ArrayBuffer
+            using var arrayBufferOrig = uint8Array.Buffer;
             using var arrayBufferReturned1 = await WebWorkerService.TaskPool.Run(() => ProcessFrameNoTransfer(arrayBufferOrig));
-            sw.Stop();
-            Log($"Processed without WorkerTransfer {arrayBufferReturned1.ByteLength} bytes in {sw.ElapsedMilliseconds} ms");
 
             // arrayBufferOrig is not detached and can still be used (indicates it was not transferred to the worker)
             Log($"ArrayBuffer is detached: {arrayBufferOrig.Detached}");
 
-            // verify data integrity
+            // pull back into .Net so it more fairly compares to the byte[] method
             var bytesReadBack = arrayBufferReturned1.ReadBytes();
-            Log($"Data integrity verified: {bytesReadBack.SequenceEqual(bytes)}");
+
+            sw.Stop();
+            Log($"Processed without WorkerTransfer {arrayBufferReturned1.ByteLength} bytes in {sw.ElapsedMilliseconds} ms\n");
         }
 
         {
+            Log($"ArrayBuffer with WorkerTransfer...");
+
             // process the ArrayBuffer in a worker using WorkerTransfer
             // the original will become detached
             var sw = Stopwatch.StartNew();
+
+            // get bytes as a Uint8Array
+            using var uint8Array = new Uint8Array(bytes);
+
+            //  get the underlying ArrayBuffer
+            using var arrayBufferOrig = uint8Array.Buffer;
             using var arrayBufferReturned1 = await WebWorkerService.TaskPool.Run(() => ProcessFrame(arrayBufferOrig));
-            sw.Stop();
-            Log($"Processed with WorkerTransfer {arrayBufferReturned1.ByteLength} bytes in {sw.ElapsedMilliseconds} ms");
 
             // arrayBufferOrig is now detached and cannot be used (indicates it was transferred to the worker)
             Log($"ArrayBuffer is detached: {arrayBufferOrig.Detached}");
 
-            // verify data integrity
+            // pull back into .Net so it more fairly compares to the byte[] method
             var bytesReadBack = arrayBufferReturned1.ReadBytes();
-            Log($"Data integrity verified: {bytesReadBack.SequenceEqual(bytes)}");
+
+            sw.Stop();
+            Log($"Processed with WorkerTransfer {arrayBufferReturned1.ByteLength} bytes in {sw.ElapsedMilliseconds} ms\n");
+        }
+
+        {
+            Log($"byte[] - transferable and ArrayBuffer used by the dispatcher automatically...");
+
+            // process the byte[] in a worker (while byte[] itself is not transferrable, transferrable is used under the hood to prevent copying where possible)
+            // here for comparison purposes
+            var sw = Stopwatch.StartNew();
+            var bytesReadBack = await WebWorkerService.TaskPool.Run(() => ProcessFrameByteArray(bytes));
+
+            // arrayBufferOrig is not used directly. write to the log like the other tests do.
+            Log($"ArrayBuffer is detached: {false}");
+
+            // the data is already in .Net (other methods do it manually for a fair comparison)
+
+            sw.Stop();
+            Log($"Processed byte[] {bytesReadBack.Length} bytes in {sw.ElapsedMilliseconds} ms\n");
         }
         Log("Done\n");
     }
@@ -133,16 +169,27 @@ Home.razor
     [return: WorkerTransfer]
     static async Task<ArrayBuffer> ProcessFrame([WorkerTransfer] ArrayBuffer arrayBuffer)
     {
-        // write to console to indicate data was received
-        Console.WriteLine($"Processing {arrayBuffer.ByteLength} bytes in worker");
-        return arrayBuffer;
+        // read in the data and write back out so it compares more equally with the other methods
+        var data = arrayBuffer.ReadBytes();
+        var retunrnedArrayBuffer = new Uint8Array(data).Buffer;
+        Console.WriteLine($"Processing ArrayBuffer with WorkerTransfer {data.Length} bytes in worker");
+        return retunrnedArrayBuffer;
     }
 
     static async Task<ArrayBuffer> ProcessFrameNoTransfer(ArrayBuffer arrayBuffer)
     {
+        // read in the data and write back out so it compares more equally with the other methods
+        var data = arrayBuffer.ReadBytes();
+        var retunrnedArrayBuffer = new Uint8Array(data).Buffer;
+        Console.WriteLine($"Processing ArrayBuffer without WorkerTransfer {data.Length} bytes in worker");
+        return retunrnedArrayBuffer;
+    }
+
+    static async Task<byte[]> ProcessFrameByteArray(byte[] data)
+    {
         // write to console to indicate data was received
-        Console.WriteLine($"Processing {arrayBuffer.ByteLength} bytes in worker");
-        return arrayBuffer;
+        Console.WriteLine($"Processing byte[] {data.Length} bytes in worker");
+        return data;
     }
 }
 ```
