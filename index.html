@@ -10,6 +10,19 @@
     <link rel="stylesheet" href="css/app.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <link href="WorkerTransferExample.styles.css" rel="stylesheet" />
+    <script webworker-enabled>
+        // postMessage hook used to view the data being sent through postMessage in a DedicatedWorkerGlobalScope
+        // Can be used to see what data is being transferred (2nd parameter to postMessage)
+        var hookPostMessage = true;
+        var isWorker = globalThis.constructor.name == 'DedicatedWorkerGlobalScope';
+        if (hookPostMessage && isWorker) {
+            var postMessageOrig = globalThis.postMessage;
+            globalThis.postMessage = function (...args) {
+                console.log('postMessage', args);
+                postMessageOrig(...args);
+            };
+        }
+    </script>
 </head>
 
 <body>
