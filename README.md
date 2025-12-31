@@ -15,13 +15,17 @@ More information about [Transferable Objects](https://developer.mozilla.org/en-U
 
 Example output from the demo:
 ```
-Processed without WorkerTransfer 52428800 bytes in 27 ms
+ArrayBuffer without WorkerTransfer...
 ArrayBuffer is detached: False
-Data integrity verified: True
-Processed with WorkerTransfer 52428800 bytes in 10 ms
+Processed without WorkerTransfer 52428800 bytes in 119 ms
+
+ArrayBuffer with WorkerTransfer...
 ArrayBuffer is detached: True
-Data integrity verified: True
-Done
+Processed with WorkerTransfer 52428800 bytes in 52 ms
+
+byte[] - transferable and ArrayBuffer used by the dispatcher automatically...
+ArrayBuffer is detached: False
+Processed byte[] 52428800 bytes in 52 ms
 ```
 
 
@@ -163,7 +167,6 @@ Home.razor
             sw.Stop();
             Log($"Processed byte[] {bytesReadBack.Length} bytes in {sw.ElapsedMilliseconds} ms\n");
         }
-        Log("Done\n");
     }
 
     [return: WorkerTransfer]
