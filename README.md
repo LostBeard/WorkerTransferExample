@@ -30,7 +30,7 @@ Done
 WorkerTransferExample.csproj
 ```xml
     <ItemGroup>
-        <PackageReference Include="SpawnDev.BlazorJS.WebWorkers" Version="2.26.0" />
+        <PackageReference Include="SpawnDev.BlazorJS.WebWorkers" Version="2.27.0" />
     </ItemGroup>
 ```
 
