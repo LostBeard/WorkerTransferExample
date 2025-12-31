@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using SpawnDev;
 using SpawnDev.BlazorJS;
 using SpawnDev.BlazorJS.WebWorkers;
 using WorkerTransferExample;
@@ -12,7 +11,6 @@ builder.Services.AddWebWorkerService(webWorkerService =>
     // warm up a single worker in the pool
     webWorkerService.TaskPool.PoolSize = 1;
 });
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 if (JS.IsWindow)
 {
     builder.RootComponents.Add<App>("#app");

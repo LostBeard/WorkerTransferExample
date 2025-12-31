@@ -9,7 +9,7 @@
 
 <h1>WorkerTransfer Example</h1>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<button class="btn btn-primary" @onclick="Run">Click me</button>
 
 <pre role="status">@status</pre>
 
@@ -25,7 +25,7 @@
         StateHasChanged();
     }
 
-    private async Task IncrementCount()
+    private async Task Run()
     {
         // generate 250KB of random data
         var bytes = RandomNumberGenerator.GetBytes(250 * 1024);
