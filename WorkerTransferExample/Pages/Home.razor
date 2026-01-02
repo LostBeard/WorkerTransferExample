@@ -87,16 +87,16 @@
         }
 
         {
-            Log($"byte[] - transferable and ArrayBuffer used by the dispatcher automatically...");
+            Log($"byte[] - copied to Javascript and transferred to worker...");
 
-            // process the byte[] in a worker (while byte[] itself is not transferrable, transferrable is used under the hood to prevent copying where possible)
+            // process the byte[] in a worker
             // here for comparison purposes
             var sw = Stopwatch.StartNew();
             var bytesReadBack = await WebWorkerService.TaskPool.Run(() => ProcessFrameByteArray(bytes));
 
             // The byte[] itself is not detachable, so we cannot check that
-            // Internally it is copied to Javascript becoming Uint8Array and that copy's ArrayBuffer is transferred to the worker to prevent an extra copy
-            Log($"ArrayBuffer is detached: [Not Applicable]");
+            // byte[] is copied to Javascript becoming Uint8Array and its ArrayBuffer is transferred to the worker to prevent an extra copy
+            Log($"byte[] is detached: [Not Applicable]");
 
             // the data is already in .Net (other methods do it manually for a fair comparison)
 
