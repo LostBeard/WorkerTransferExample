@@ -8,7 +8,7 @@ More information about [Transferable Objects](https://developer.mozilla.org/en-U
 - The demo generates 50MB of random data and sends it to a web worker for processing.
 - Test 1 The demo first sends the data as an ArrayBuffer without using WorkerTransfer, which results in the data being copied to the worker.
 - Test 2 Then the demo sends the data as an ArrayBuffer using WorkerTransfer, which results in the data being transferred to the worker (the original data becomes detached and cannot be used anymore).
-- Test 3 Then the demo sends the data as a byte[] using WorkerTransfer under the hood, which results in the data being transferred to the worker.
+- Test 3 Then the demo sends the data as a byte[]. The byte[] is copied to Javascript and that copy is transferred to the worker to avoid an additional copy.
 - The demo measures and displays the time taken for each operation.
 - This demo requires a modern browser that supports Web Workers and Transferable Objects.
 - You will notice a performance improvement when using WorkerTransfer for large data transfers.
@@ -24,7 +24,7 @@ ArrayBuffer is detached: True
 Processed with WorkerTransfer 52428800 bytes in 52 ms
 
 byte[] - transferable and ArrayBuffer used by the dispatcher automatically...
-ArrayBuffer is detached: True
+ArrayBuffer is detached: [Not Applicable]
 Processed byte[] 52428800 bytes in 52 ms
 ```
 
