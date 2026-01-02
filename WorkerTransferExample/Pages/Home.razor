@@ -94,8 +94,9 @@
             var sw = Stopwatch.StartNew();
             var bytesReadBack = await WebWorkerService.TaskPool.Run(() => ProcessFrameByteArray(bytes));
 
-            // arrayBufferOrig is not used directly. write to the log like the other tests do.
-            Log($"ArrayBuffer is detached: {true}");
+            // The byte[] itself is not detachable, so we cannot check that
+            // Internally it is copied to Javascript becoming Uint8Array and that copy's ArrayBuffer is transferred to the worker to prevent an extra copy
+            Log($"ArrayBuffer is detached: [Not Applicable]");
 
             // the data is already in .Net (other methods do it manually for a fair comparison)
 
