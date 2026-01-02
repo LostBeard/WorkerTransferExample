@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "WorkerTransferExample",
   "resources": {
-    "hash": "sha256-proqxaM6m//pdu6lOSOOQiGAEW3Eyq2dxmWDhlTTbiM=",
+    "hash": "sha256-QM/SuQF8dZfp5Is0qkJ4RzOWzQffCOB89Iy8CLezQhs=",
     "jsModuleNative": {
       "dotnet.native.js": "sha256-9CAAip2ZPHshJIYLCt0fBPnVC0rqC0ZaqfByiKObRQ0="
     },
@@ -61,7 +61,7 @@
       "System.Threading.wasm": "sha256-0ZsIbOGk7Na3zQokik1BkgbtG0eZCHtltY5nJxRMq3Y=",
       "System.Web.HttpUtility.wasm": "sha256-d/uQ1xy7bhv6hLDznliPtCRHP9BfpZTBFO7CYlW1hjo=",
       "System.Private.CoreLib.wasm": "sha256-pdd2lSC/3cHfL17lmEPZtLH3M0QzJVqFrgOwYs8esfU=",
-      "WorkerTransferExample.wasm": "sha256-umLlNQWQO1wXps6Mcw1y9fOhwEqLN1dKaktpCMuip+s="
+      "WorkerTransferExample.wasm": "sha256-zIOwLlBsYvB4R+2na74th+8ZBJnq68H5YvCpYs5iY+Q="
     },
     "libraryInitializers": {
       "SpawnDev.BlazorJS.lib.module.js": "sha256-9suC9LCVB+Qavj4prBgl/ufjjFZIUypz8Imx/0r5LsI="
