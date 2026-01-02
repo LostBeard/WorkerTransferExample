@@ -24,7 +24,7 @@ ArrayBuffer is detached: True
 Processed with WorkerTransfer 52428800 bytes in 52 ms
 
 byte[] - copied to Javascript and transferred to worker...
-ArrayBuffer is detached: [Not Applicable]
+byte[] is detached: [Not Applicable]
 Processed byte[] 52428800 bytes in 52 ms
 ```
 
